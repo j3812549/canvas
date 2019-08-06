@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>绘制图片</title>
+</head>
+
+<body>
+  <canvas id="demo" width="600" height="600">
+    对不起，您的浏览器暂不支持canvas
+  </canvas>
+  <script>
+    (function () {
+      var canvas = document.getElementById('demo')
+      var ctx = canvas.getContext('2d')
+
+      canvas.width = 800
+      canvas.height = 600
+      canvas.style.border = '1px solid #000'
+      // 创建图片的dom对象
+      var img = new Image()
+      img.src = 'http://120.55.40.62/api/getimg?img=527d0730-8844-11e9-840a-07d4cc956f80.jpg'
+      img.onload = function () {
+        // 图片加载完成后，把图片绘制到canvas上
+
+        var ow = img.width
+        var oh = img.height
+
+        ctx.drawImage(img, 100, 100, 50, 50 * oh/ow)
+      }
+
+      // 绘制置顶的裁剪图片
+      var img2 = new Image()
+      img2.src = 'http://120.55.40.62/api/getimg?img=527d0730-8844-11e9-840a-07d4cc956f80.jpg'
+      img2.onload = function () {
+        ctx.drawImage(img2, 40, 65, 40, 65, 300, 300, 100, 100)
+      }
+    })()
+  </script>
+</body>
+
+</html>
