@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>序列帧动画</title>
+</head>
+
+<body>
+  <canvas id="demo" width="600" height="600">
+    对不起，您的浏览器暂不支持canvas
+  </canvas>
+  <script>
+    (function () {
+      var canvas = document.getElementById('demo')
+      var ctx = canvas.getContext('2d')
+
+      canvas.width = 800
+      canvas.height = 600
+      canvas.style.border = '1px solid #000'
+
+      var img = new Image()
+      img.src = './01.jpg'
+
+      img.onload = function () {
+        var frameIndex = 0
+        setInterval(function () {
+          ctx.clearRect(0, 0, canvas.width, canvas.height)
+          ctx.drawImage(
+            img, frameIndex * 50, 0, 40, 55, 100, 100, 100, 55 *2
+            )
+            frameIndex ++
+            frameIndex %= 3
+            ctx.font = '50px bold 黑体'
+            ctx.fillStyle  = 'red'
+            ctx.fillText('我可不可爱呢？？', 300,200)
+        }, 100)
+      }
+ 
+    })()
+  </script>
+</body>
+
+</html>
