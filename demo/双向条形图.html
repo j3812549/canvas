@@ -7,50 +7,94 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>双向条形图</title>
 </head>
-<style>
-  #demo {
-    width: 600px;
-    height: 600px;
-  }
-</style>
 
 <body>
   <h1>双向条形图</h1>
-  <canvas id="demo" width="600px" height="600px">
+  <canvas id="demo" width="600px" height="400px">
     对不起，您的浏览器暂不支持canvas
   </canvas>
 </body>
 <script>
+  var data = [441, 132, 222, 333, 444, 513, 416, 132, 222, 333, 444, 513, 416]
+  goBarChart(data)
+  function goBarChart(dataArr) {
+    var canvas, ctx
+    var cWidth, cHeight, originX, originY, cMargin
+    var bMargin, tobalBars, bWidth, maxValue
+    var totalYNomber
 
-  const data = [441, 132, 222, 333, 444, 513, 416]
+    canvas = document.getElementById('demo')
+    if (canvas && canvas.getContext) {
+      ctx = canvas.getContext('2d')
+    }
+    initChart()
+    drawLineLabelMarkers()
 
-  const canvas = document.getElementById('demo');
-  const ctx = canvas.getContext('2d')
-  const w = canvas.width
-  const h = canvas.height
+    function drawLineLabelMarkers() {
+      ctx.translate(.5, .5)
+      // drawLine(cWidth / 2, cMargin, cWidth / 2, originY)
+      // drawLine(cMargin, originY, originX, originY)
+      ctx.translate(-0.5, -0.5)
+      drawMarkers()
+    }
 
-  ctx.lineWidth = 1
-  ctx.moveTo(w / 2, 0)
-  ctx.lineTo(w / 2, h)
-  ctx.stroke()
+    function drawMarkers() {
+      ctx.textAlign = 'center'
+      var oneVal = maxValue / tobalBars
+      console.log(maxValue)
+      console.log(oneVal)
+      var tobalBarsM = Math.trunc(tobalBars / 2)
+      for (var i = 0; i < tobalBars; i++) {
+        console.log(oneVal * i)
+        var markerVal = Math.trunc(i * oneVal)
+        var xMarker = parseInt(originX * (i / tobalBars) + cMargin)
+        var yMarker = cHeight - 15
+        ctx.translate(-0.5, -0.5)
+        drawLine(xMarker, cMargin, xMarker, yMarker - cMargin)
+        ctx.fillText(markerVal, xMarker, yMarker)
+        if (i < tobalBarsM) {
+        }
+        if (i === tobalBarsM) {
+        }
+        if (i > tobalBarsM) {
+        }
+        ctx.translate(0.5, 0.5)
+      }
+    }
 
-  let total = 0
-  let totalS = 0
-  let totalM
-  let totalO
-  for (let i = 0; i < data.length; i++) {
-    total = total + data[i]
+    function drawLine(x, y, X, Y) {
+      ctx.beginPath()
+      ctx.moveTo(x, y)
+      ctx.lineTo(X, Y)
+      ctx.stroke()
+      ctx.closePath()
+    }
+    function initChart() {
+      cMargin = 50
+      cWidth = canvas.width
+      cHeight = canvas.height
+      originX = cWidth - cMargin
+      originY = cHeight - cMargin
+
+      bMargin = 15
+      tobalBars = dataArr.length
+      bWidth = parseInt(cWidth / tobalBars - bMargin)
+      maxValue = 0
+      for (var i = 0; i < tobalBars; i++) {
+        var barVal = parseInt(dataArr[i])
+        if (barVal > maxValue) {
+          maxValue = barVal
+        }
+      }
+      totalYNomber = 10
+    }
   }
-  totalM = total / data.length
-  for (let i = 0; i < data.length; i++) {
-    totalS = data[i] - totalM + totalS
-  }
-  totalS = (totalS / data.length) * (totalS / data.length)
-  totalO = (totalS / (data.length - 1)) * (totalS / (data.length - 1))
-  console.log(total)
-  console.log(totalM)
-  console.log(totalS)
-  console.log(totalO)
+
+
+
+
+
+
 
 </script>
 
