@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>双向条形图</title>
+  <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
 </head>
 
 <body>
@@ -15,80 +16,154 @@
   </canvas>
 </body>
 <script>
-  var data = [441, 132, 222, 333, 444, 513, 416, 132, 222, 333, 444, 513, 416]
-  goBarChart(data)
-  function goBarChart(dataArr) {
-    var canvas, ctx
-    var cWidth, cHeight, originX, originY, cMargin
-    var bMargin, tobalBars, bWidth, maxValue
-    var totalYNomber
-
-    canvas = document.getElementById('demo')
-    if (canvas && canvas.getContext) {
-      ctx = canvas.getContext('2d')
-    }
-    initChart()
-    drawLineLabelMarkers()
-
-    function drawLineLabelMarkers() {
-      ctx.translate(.5, .5)
-      // drawLine(cWidth / 2, cMargin, cWidth / 2, originY)
-      // drawLine(cMargin, originY, originX, originY)
-      ctx.translate(-0.5, -0.5)
-      drawMarkers()
-    }
-
-    function drawMarkers() {
-      ctx.textAlign = 'center'
-      var oneVal = maxValue / tobalBars
-      console.log(maxValue)
-      console.log(oneVal)
-      var tobalBarsM = Math.trunc(tobalBars / 2)
-      for (var i = 0; i < tobalBars; i++) {
-        console.log(oneVal * i)
-        var markerVal = Math.trunc(i * oneVal)
-        var xMarker = parseInt(originX * (i / tobalBars) + cMargin)
-        var yMarker = cHeight - 15
-        ctx.translate(-0.5, -0.5)
-        drawLine(xMarker, cMargin, xMarker, yMarker - cMargin)
-        ctx.fillText(markerVal, xMarker, yMarker)
-        if (i < tobalBarsM) {
-        }
-        if (i === tobalBarsM) {
-        }
-        if (i > tobalBarsM) {
-        }
-        ctx.translate(0.5, 0.5)
-      }
-    }
-
-    function drawLine(x, y, X, Y) {
-      ctx.beginPath()
-      ctx.moveTo(x, y)
-      ctx.lineTo(X, Y)
-      ctx.stroke()
-      ctx.closePath()
-    }
-    function initChart() {
-      cMargin = 50
-      cWidth = canvas.width
-      cHeight = canvas.height
-      originX = cWidth - cMargin
-      originY = cHeight - cMargin
-
-      bMargin = 15
-      tobalBars = dataArr.length
-      bWidth = parseInt(cWidth / tobalBars - bMargin)
-      maxValue = 0
-      for (var i = 0; i < tobalBars; i++) {
-        var barVal = parseInt(dataArr[i])
-        if (barVal > maxValue) {
-          maxValue = barVal
-        }
-      }
-      totalYNomber = 10
-    }
+  var list = {
+    symbol: "000001",
+    day: 1
   }
+  $.ajax({
+    //请求方式
+    type: "POST",
+    //请求的媒体类型
+    contentType: "application/json;charset=UTF-8",
+    //请求地址
+    url: 'http://47.98.53.144:8090/stock/transactionDetail',
+    //数据，json字符串
+    data: JSON.stringify(list),
+    //请求成功
+    success: function (res) {
+      var data = res.data
+      console.log(data)
+      goBarChart(data)
+      // var data = [441, 132, 222, 333, 444, 513, 416, 132, 222, 333, 444, 513, 416]
+      function goBarChart(dataArr) {
+        var canvas, ctx
+        var cWidth, cHeight, originX, originY, cMargin
+        var XmaxValue, YmaxValue, YminValue
+        var bMargin, tobalBars, bWidth
+        var totalYNomber
+
+        canvas = document.getElementById('demo')
+        if (canvas && canvas.getContext) {
+          ctx = canvas.getContext('2d')
+        }
+        initChart()
+        drawLineLabelMarkers()
+
+        function drawLineLabelMarkers() {
+          ctx.translate(.5, .5)
+          ctx.lineWidth = .5
+          drawLine(cWidth / 2, cMargin, cWidth / 2, originY) // Ymid
+          ctx.lineWidth = 1
+          drawLine(cMargin, originY, originX, originY) // X
+          drawLine(cMargin, cMargin, cMargin, originY) // Y
+          ctx.translate(-0.5, -0.5)
+          drawMarkers()
+        }
+
+        function drawMarkers() {
+          ctx.textAlign = 'center'
+          var oneVal = parseInt(XmaxValue / 10) + parseInt((XmaxValue / 100))
+          var totalValueX = oneVal * 10 / 2
+          var tobalBarsM = 5
+          var totalNumber = 11
+          console.log(totalValueX)
+
+          var diffTotal = (YmaxValue * 100 - YminValue * 100) / 100
+          var diffNumber = 6
+          var oneDiff = diffTotal / diffNumber
+          // X
+          for (var i = 0; i < totalNumber; i++) {
+            var markerVal = tobalBarsM < i ? (Math.trunc(i * oneVal) - totalValueX) * 2 : -(Math.trunc(i * oneVal) - totalValueX) * 2
+            var xMarker = parseInt(originX * (i / totalNumber) + cMargin)
+            var yMarker = cHeight - 15
+            ctx.translate(-0.5, -0.5)
+            // drawLine(xMarker, cMargin, xMarker, yMarker - cMargin)
+            ctx.fillText(markerVal, xMarker, yMarker)
+            ctx.translate(0.5, 0.5)
+          }
+          // Y
+          for (var i = 0; i < diffNumber + 1; i++) {
+            var markerVal = YmaxValue - (i * oneDiff)
+            var xMarker = cMargin - 30
+            var yMarker = (((i * oneDiff) / diffTotal) * (originY - cMargin)) + cMargin
+            ctx.fillText(markerVal.toFixed(2), xMarker, yMarker)
+          }
+
+          for (var i = 0; i < dataArr.length; i++) {
+            var xMarker = dataArr[i].volume / (totalValueX * 2) * originY
+            console.log(xMarker)
+            var yMarker = (((dataArr[i].price - YminValue) / diffTotal) * (originY - cMargin)) + cMargin
+
+            switch (dataArr[i].type) {
+              case 0:
+                drawRect((originX + cMargin) / 2, yMarker, xMarker / 2, bWidth)
+                break;
+              case 1:
+                // drawRect(originX / 2 + cMargin / 2, yMarker, xMarker / 2, -bWidth)
+                break;
+            }
+          }
+
+        }
+
+        function drawRect(x, y, W, H) {
+          ctx.beginPath()
+          ctx.fillRect(x, y, W, H)
+          ctx.stroke()
+          ctx.closePath()
+        }
+
+        function drawLine(x, y, X, Y) {
+          ctx.beginPath()
+          ctx.moveTo(x, y)
+          ctx.lineTo(X, Y)
+          ctx.stroke()
+          ctx.closePath()
+        }
+        function initChart() {
+          cMargin = 50
+          cWidth = canvas.width
+          cHeight = canvas.height
+          originX = cWidth - cMargin
+          originY = cHeight - cMargin
+
+          bMargin = 15
+          tobalBars = dataArr.length
+          bWidth = parseInt(cWidth / tobalBars - bMargin)
+          XmaxValue = 0
+          YminValue = 0
+          YmaxValue = 0
+          for (var i = 0; i < tobalBars; i++) {
+            var barVal = parseInt(dataArr[i].volume)
+            if (barVal > XmaxValue) {
+              XmaxValue = barVal
+            }
+          }
+          for (var i = 0; i < tobalBars; i++) {
+            var barVal = dataArr[i].price
+            if (barVal > YmaxValue) {
+              YmaxValue = barVal
+            }
+          }
+          YminValue = YmaxValue
+          for (var i = 0; i < tobalBars; i++) {
+            var barVal = dataArr[i].price
+            if (barVal < YminValue) {
+              YminValue = barVal
+            }
+          }
+          console.log(YmaxValue)
+          console.log(YminValue)
+          totalYNomber = 10
+        }
+      }
+    },
+    //请求失败，包含具体的错误信息
+    error: function (e) {
+      console.log(e.status);
+      console.log(e.responseText);
+    }
+  });
 
 
 
