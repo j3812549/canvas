@@ -11,7 +11,7 @@
 
 <body>
   <h1>折线图</h1>
-  <canvas id="demo" width="600px" height="400px">
+  <canvas id="demo" width="900px" height="400px">
     对不起，您的浏览器暂不支持canvas
   </canvas>
 </body>
@@ -34,6 +34,7 @@
     var speed = 10
 
     var mousePosition = {}
+    var mouseClickLine = null
 
     canvas = document.getElementById('demo')
     if (canvas && canvas.getContext) {
@@ -44,33 +45,50 @@
     drawLineAnimate()
 
     var mouseTimer = null
-    canvas.addEventListener("mousemove", function (e) {
-      e = e || window.event
-      if (e.layerX || e.layerX == 0) {
-        mousePosition.x = e.layerX;
-        mousePosition.y = e.layerY;
-      } else if (e.offsetX || e.offsetX == 0) {
-        mousePosition.x = e.offsetX;
-        mousePosition.y = e.offsetY;
-      }
-      clearTimeout(mouseTimer);
-      mouseTimer = setTimeout(function () {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        drawLineLabelMarkers();
-        drawLineAnimate(true);
-      }, 10);
-    })
+    // canvas.addEventListener("mousemove", function (e) {
+    //   e = e || window.event
+    //   if (e.layerX || e.layerX == 0) {
+    //     mousePosition.x = e.layerX;
+    //     mousePosition.y = e.layerY;
+    //   } else if (e.offsetX || e.offsetX == 0) {
+    //     mousePosition.x = e.offsetX;
+    //     mousePosition.y = e.offsetY;
+    //   }
+    //   clearTimeout(mouseTimer);
+    //   mouseTimer = setTimeout(function () {
+    //     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    //     drawLineLabelMarkers();
+    //     drawLineAnimate(true);
+    //   }, 10);
+    // })
+    setTimeout(function () {
+      canvas.addEventListener('click', function (e) {
+        e = e || window.event
+        if (e.layerX || e.layerX == 0) {
+          mousePosition.x = e.layerX;
+          mousePosition.y = e.layerY;
+        } else if (e.offsetX || e.offsetX == 0) {
+          mousePosition.x = e.offsetX;
+          mousePosition.y = e.offsetY;
+        }
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        drawLineLabelMarkers()
+        drawLineAnimate(null, true)
+      })
+    }, speed * numctr)
 
-    function drawLineLabelMarkers() {
+    function drawLineLabelMarkers(mouseClick) {
       ctx.translate(.5, .5)
       ctx.lineWidth = 1
+
       drawLine(cMargin, originY, originX, originY) // X
       drawLine(cMargin, cMargin, cMargin, originY) // Y
       ctx.translate(-0.5, -0.5)
       drawMarkers()
     }
 
-    function drawLineAnimate(mouseMove) {
+    function drawLineAnimate(mouseMove, mouseClick) {
+
       ctx.beginPath()
       for (var i = 0; i <= totalNumber; i++) {
         ctx.lineWidth = 1
@@ -91,6 +109,46 @@
           ctx.clearRect((ctr / numctr) * canvas.width, 0, canvas.width, canvas.height)
           drawLineLabelMarkers()
         }, speed)
+      }
+      if (mouseClick) {
+        var TextXMargin = 55
+        var TextYMargin = 24
+        ctx.translate(.5, .5)
+        ctx.strokeStyle = 'black'
+        ctx.lineWidth = 1
+        for (var i = 0; i <= totalNumber; i++) {
+          var xMarker = ((originX - cMargin) * (i / totalNumber)) + cMargin * 2
+          var OneMarkerVal = dataArr[i] + ','
+          var TwoMarkerVal = XdataList[i]
+          // var TwoMarkerVal = YmaxValue - (i * (Ytotal / Ynumber)).toFixed(0)
+          if (i === 0) {
+            if (mousePosition.x <= xMarker) {
+              drawMouseClickText()
+            }
+          }
+          if (i !== 0) {
+            var xMarkerBefore = ((originX - cMargin) * ((i - 1) / totalNumber)) + cMargin * 2
+            if (xMarkerBefore <= mousePosition.x) {
+              if (mousePosition.x <= xMarker) {
+                drawMouseClickText()
+              }
+            }
+          }
+        }
+        ctx.translate(-0.5, -0.5)
+        ctx.strokeStyle = 'black'
+        ctx.lineWidth = .3
+        function drawMouseClickText() {
+          drawLine(xMarker, cMargin, xMarker, originY)
+          ctx.globalAlpha = "0.6";
+          drawRect(xMarker + 30, mousePosition.y, 80, 40)
+          ctx.globalAlpha = "1";
+          ctx.strokeStyle = '#fff'
+          ctx.fillStyle = '#fff'
+          ctx.fillText(OneMarkerVal, xMarker + TextXMargin, mousePosition.y + TextYMargin)
+          ctx.fillText(TwoMarkerVal, xMarker + TextXMargin + 30, mousePosition.y + TextYMargin)
+          ctx.fillStyle = 'black'
+        }
       }
     }
 
