@@ -16,18 +16,27 @@
   </canvas>
 </body>
 <script>
-  var dataA = [441, 132, 222, 333, 444, 513, 416, 132, 222, 333, 444, 513, 416]
-  var dataB = [123, 124, 512, 151, 626, 735, 123, 423, 563, 231, 456, 862, 234]
-  window.onload = function () {
-    goBarChart(dataA, dataB)
+  var dataA = {
+    name: '净利润同比增长率',
+    data: [441, 132, 222, 333, 444, 513, 416, 132, 222],
+    color: 'rgb(208,148,98)'
   }
-  function goBarChart(dataA, dataB) {
+  var dataB = {
+    name: '营业收入同比增长率',
+    data: [123, 124, 512, 151, 626, 735, 123, 423, 563],
+    color: 'rgb(163,201,233)'
+  }
+  window.onload = function () {
+    goBarChart(dataA, dataB, dataB)
+  }
+  function goBarChart(dataA, dataB, dataB) {
+    var argumentsList = arguments
     var canvas, ctx
     var cWidth, cHeight, originX, originY, cMargin
     var XmaxValue, YmaxValue, YminValue, Ytotal, Ynumber
-    var dataArr, tobalBars, XdataList, dataAColor, dataBColor, totalNumber
+    var dataArr, tobalBars, XdataList, totalNumber
     var arcD, mouseMoveArcD
-
+    var options
 
     var ctr = 1
     var numctr = 100
@@ -35,6 +44,10 @@
 
     var mousePosition = {}
     var mouseClickLine = null
+
+    var tMap = []
+    var tWidth, tHeight, tMargin, TarcMargin
+    var ToriginX, ToriginY
 
     canvas = document.getElementById('demo')
     if (canvas && canvas.getContext) {
@@ -71,9 +84,13 @@
           mousePosition.x = e.offsetX;
           mousePosition.y = e.offsetY;
         }
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
-        drawLineLabelMarkers()
-        drawLineAnimate(null, true)
+        if (cMargin < mousePosition.x && cMargin < mousePosition.y) {
+          if (mousePosition.x < originX && mousePosition.y < originY) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            drawLineLabelMarkers()
+            drawLineAnimate(null, true)
+          }
+        }
       })
     }, speed * numctr)
 
@@ -85,6 +102,7 @@
       drawLine(cMargin, cMargin, cMargin, originY) // Y
       ctx.translate(-0.5, -0.5)
       drawMarkers()
+      drawTagMarkers(argumentsList)
     }
 
     function drawLineAnimate(mouseMove, mouseClick) {
@@ -92,15 +110,21 @@
       ctx.beginPath()
       for (var i = 0; i <= totalNumber; i++) {
         ctx.lineWidth = 1
-        ctx.fillStyle = dataAColor
-        drawLineByData(dataA, i, dataAColor)
-        ctx.fillStyle = dataBColor
-        drawLineByData(dataB, i, dataBColor)
-        ctx.fillStyle = 'black'
+        for (var j = 0; j < argumentsList.length; j++) {
+          ctx.fillStyle = argumentsList[j].color
+          if (TdataList.indexOf(argumentsList[j].name) !== -1) {
+            drawLineByData(argumentsList[j].data, i, argumentsList[j].color)
+          }
+          ctx.fillStyle = 'black'
+        }
       }
       ctx.closePath()
-      drawArcMarkers(dataA, mouseMove)
-      drawArcMarkers(dataB, mouseMove)
+      for (var i = 0; i < argumentsList.length; i++) {
+        if (TdataList.indexOf(argumentsList[i].name) !== -1) {
+          drawArcMarkers(argumentsList[i].data, mouseMove)
+        }
+      }
+
       if (ctr < numctr) {
         ctr++
         setTimeout(function () {
@@ -108,19 +132,19 @@
           drawLineAnimate()
           ctx.clearRect((ctr / numctr) * canvas.width, 0, canvas.width, canvas.height)
           drawLineLabelMarkers()
+          // drawTagMarkers(argumentsList)
         }, speed)
       }
+
       if (mouseClick) {
-        var TextXMargin = 55
+        var TextXMargin = 5
         var TextYMargin = 24
         ctx.translate(.5, .5)
         ctx.strokeStyle = 'black'
         ctx.lineWidth = 1
         for (var i = 0; i <= totalNumber; i++) {
           var xMarker = ((originX - cMargin) * (i / totalNumber)) + cMargin * 2
-          var OneMarkerVal = dataArr[i] + ','
-          var TwoMarkerVal = XdataList[i]
-          // var TwoMarkerVal = YmaxValue - (i * (Ytotal / Ynumber)).toFixed(0)
+          var DataMarkerKey = i
           if (i === 0) {
             if (mousePosition.x <= xMarker) {
               drawMouseClickText()
@@ -139,17 +163,61 @@
         ctx.strokeStyle = 'black'
         ctx.lineWidth = .3
         function drawMouseClickText() {
-          drawLine(xMarker, cMargin, xMarker, originY)
-          ctx.globalAlpha = "0.6";
-          drawRect(xMarker + 30, mousePosition.y, 80, 40)
-          ctx.globalAlpha = "1";
-          ctx.strokeStyle = '#fff'
-          ctx.fillStyle = '#fff'
-          ctx.fillText(OneMarkerVal, xMarker + TextXMargin, mousePosition.y + TextYMargin)
-          ctx.fillText(TwoMarkerVal, xMarker + TextXMargin + 30, mousePosition.y + TextYMargin)
-          ctx.fillStyle = 'black'
+          var w = 0
+          var h = 40
+          var markerVal
+          for (var i = 0; i < argumentsList.length; i++) {
+            if (TdataList.indexOf(argumentsList[i].name) !== -1) {
+              w += 40
+              markerVal = argumentsList[i].data[DataMarkerKey]
+              ctx.fillStyle = argumentsList[i].color
+              ctx.fillText(markerVal, xMarker + TextXMargin + w, mousePosition.y + TextYMargin)
+              ctx.fillStyle = 'black'
+            }
+          }
+          if (argumentsList.length !== 0) {
+            drawLine(xMarker, cMargin, xMarker, originY)
+            ctx.fillStyle = 'rgba(0,0,0,.2)'
+            drawRect(xMarker + 30, mousePosition.y, w + TextXMargin, h)
+            ctx.fillStyle = 'rgba(0,0,0,1)'
+          }
         }
       }
+    }
+
+    function drawTagMarkers(argumentsList) {
+      ctx.font = '14px "Helvetica Neue", Helvetica, Arial, sans-serif'
+      ctx.textAlign = 'left'
+      var TagMargin = 30
+      var _tMap = []
+      for (var i = 0; i < argumentsList.length; i++) {
+        var xMarker = cMargin / 2
+        var yMarker = ToriginY
+        tWidth = 0
+        for (var j = 0; j < argumentsList[i].name.length; j++) {
+          tWidth += 14
+        }
+        for (var j = 0; j < _tMap.length; j++) {
+          xMarker += _tMap[j].w + TagMargin
+        }
+        var tag_item = {
+          name: argumentsList[i].name,
+          x: xMarker,
+          y: ToriginY,
+          w: tWidth,
+          h: tHeight,
+          background: argumentsList[i].color
+        }
+        _tMap.push(tag_item)
+        // drawRect(xMarker, yMarker - 15, tWidth, tHeight)
+        drawArc(xMarker - TarcMargin, yMarker - 5, 5, 0, Math.PI * 2)
+        ctx.fillStyle = argumentsList[i].color
+        ctx.fillText(argumentsList[i].name, xMarker, yMarker)
+      }
+      tMap = _tMap
+      options = false
+      ctx.fillStyle = 'black'
+      ctx.font = '11px "Helvetica Neue", Helvetica, Arial, sans-serif'
     }
 
     function drawMarkers() {
@@ -180,10 +248,10 @@
     function drawLineByData(data, key, color) {
       ctx.strokeStyle = color
       var xMarker = ((originX - cMargin) * (key / totalNumber)) + cMargin * 2
-      var yMarker = ((data[key] / Ytotal) * (originY - cMargin)) + cMargin
+      var yMarker = originY - ((data[key] / YmaxValue) * (originY - cMargin))
       if (key !== 0) {
         var xMarkerBefore = ((originX - cMargin) * ((key - 1) / totalNumber)) + cMargin * 2
-        var yMarkerBefore = ((data[key - 1] / Ytotal) * (originY - cMargin)) + cMargin
+        var yMarkerBefore = originY - ((data[key - 1] / YmaxValue) * (originY - cMargin))
         if (key !== totalNumber) {
           drawLine(xMarkerBefore, yMarkerBefore, xMarker, yMarker)
         }
@@ -194,10 +262,10 @@
     function drawArcMarkers(data, mouseMove) {
       for (var i = 0; i <= totalNumber; i++) {
         var xMarker = ((originX - cMargin) * (i / totalNumber)) + cMargin * 2
-        var yMarker = ((data[i] / Ytotal) * (originY - cMargin)) + cMargin
+        var yMarker = originY - ((data[i] / YmaxValue) * (originY - cMargin))
         if (mouseMove && ctx.isPointInPath(mousePosition.x, mousePosition.y)) {
           var mouseMovexMarker = ((originX - cMargin) * ((i - 1) / totalNumber)) + cMargin * 2
-          var mouseMoveyMarker = ((data[i - 1] / Ytotal) * (originY - cMargin)) + cMargin
+          var mouseMoveyMarker = originY - ((data[i - 1] / YmaxValue) * (originY - cMargin))
           i !== totalNumber ? drawArc(mouseMovexMarker, mouseMoveyMarker, mouseMoveArcD, 0, 2 * Math.PI) : false
           i !== totalNumber ? drawArc(xMarker, yMarker, arcD, 0, 2 * Math.PI) : false
         } else {
@@ -231,18 +299,17 @@
       ctx.stroke()
       ctx.closePath()
     }
+
     function initChart() {
-      cMargin = 50
+      console.log(argumentsList)
+      cMargin = 60
       cWidth = canvas.width
       cHeight = canvas.height
       originX = cWidth - cMargin
       originY = cHeight - cMargin
 
       Ynumber = 6
-
-      dataArr = dataA.concat(dataB)
-      dataAColor = 'rgb(208,148,98)'
-      dataBColor = 'rgb(163,201,233)'
+      options = true
 
       XdataList = ['2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019']
       totalNumber = XdataList.length
@@ -253,6 +320,18 @@
       ctr = 1;
       numctr = 100;
       speed = 10;
+
+      tHeight = 20, tMargin = 10
+      ToriginX = cMargin - 30, ToriginY = cMargin - 40
+      TarcMargin = 10
+      TdataList = ["净利润同比增长率", "营业收入同比增长率"]
+
+      dataArr = []
+      for (var i = 0; i < argumentsList.length; i++) {
+        if (TdataList.indexOf(argumentsList[i].name) !== -1) {
+          dataArr = dataArr.concat(argumentsList[i].data)
+        }
+      }
 
       tobalBars = dataArr.length
       YminValue = 0
@@ -271,7 +350,6 @@
         }
       }
       Ytotal = (YmaxValue * 100 - YminValue * 100) / 100
-
     }
   }
 
