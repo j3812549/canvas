@@ -27,9 +27,9 @@
     color: 'rgb(163,201,233)'
   }
   window.onload = function () {
-    goBarChart(dataA, dataB, dataB)
+    goBarChart(dataA, dataB)
   }
-  function goBarChart(dataA, dataB, dataB) {
+  function goBarChart(dataA, dataB) {
     var argumentsList = arguments
     var canvas, ctx
     var cWidth, cHeight, originX, originY, cMargin
@@ -37,6 +37,7 @@
     var dataArr, tobalBars, XdataList, totalNumber
     var arcD, mouseMoveArcD
     var options
+
 
     var ctr = 1
     var numctr = 100
@@ -46,6 +47,7 @@
     var mouseClickLine = null
 
     var tMap = []
+    var TdataList
     var tWidth, tHeight, tMargin, TarcMargin
     var ToriginX, ToriginY
 
@@ -91,8 +93,33 @@
             drawLineAnimate(null, true)
           }
         }
+        handleTag(mousePosition)
       })
     }, speed * numctr)
+
+    function handleTag(mousePosition) {
+      for (var i = 0; i < tMap.length; i++) {
+        var xMarkerMin = tMap[i].x - TarcMargin
+        var xMarkerMax = xMarkerMin + tMap[i].w
+        var yMarkerMin = tMap[i].y - tHeight
+        var yMarkerMax = tMap[i].y
+        if (xMarkerMin < mousePosition.x && yMarkerMin < mousePosition.y) {
+          if (xMarkerMax > mousePosition.x && yMarkerMax > mousePosition.y) {
+            ctx.clearRect(0, 0, cWidth, ToriginY)
+            ctr = 0
+            if (TdataList.indexOf(tMap[i].name) !== -1) {
+              TdataList.splice(TdataList.indexOf(tMap[i].name), 1)
+              drawTagMarkers(argumentsList)
+              drawLineAnimate()
+            } else {
+              TdataList.push(tMap[i].name)
+              drawTagMarkers(argumentsList)
+              drawLineAnimate()
+            }
+          }
+        }
+      }
+    }
 
     function drawLineLabelMarkers(mouseClick) {
       ctx.translate(.5, .5)
@@ -132,7 +159,6 @@
           drawLineAnimate()
           ctx.clearRect((ctr / numctr) * canvas.width, 0, canvas.width, canvas.height)
           drawLineLabelMarkers()
-          // drawTagMarkers(argumentsList)
         }, speed)
       }
 
@@ -210,9 +236,18 @@
         }
         _tMap.push(tag_item)
         // drawRect(xMarker, yMarker - 15, tWidth, tHeight)
-        drawArc(xMarker - TarcMargin, yMarker - 5, 5, 0, Math.PI * 2)
-        ctx.fillStyle = argumentsList[i].color
-        ctx.fillText(argumentsList[i].name, xMarker, yMarker)
+        if (TdataList.indexOf(argumentsList[i].name) !== -1) {
+          drawArc(xMarker - TarcMargin, yMarker - 5, 5, 0, Math.PI * 2)
+          ctx.fillStyle = argumentsList[i].color
+          ctx.fillText(argumentsList[i].name, xMarker, yMarker)
+        } else {
+          ctx.globalAlpha = .6
+          drawArc(xMarker - TarcMargin, yMarker - 5, 5, 0, Math.PI * 2)
+          ctx.fillStyle = argumentsList[i].color
+          ctx.fillText(argumentsList[i].name, xMarker, yMarker)
+          ctx.globalAlpha = 1
+          drawLine(xMarker - TarcMargin, yMarker - 5, xMarker - TarcMargin + tWidth, yMarker - 5)
+        }
       }
       tMap = _tMap
       options = false
@@ -301,7 +336,6 @@
     }
 
     function initChart() {
-      console.log(argumentsList)
       cMargin = 60
       cWidth = canvas.width
       cHeight = canvas.height
