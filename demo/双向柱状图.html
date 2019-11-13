@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>双向柱状图</title>
+  <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+</head>
+
+<body>
+  <h1>双向柱状图</h1>
+  <canvas id="demo" width="600px" height="400px">
+    对不起，您的浏览器暂不支持canvas
+  </canvas>
+</body>
+<script>
+  const data = [{
+    "symbol": "000001",
+    "volume": 7494,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.6,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 25867,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.61,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 16627,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.61,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 22418,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.62,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 21128,
+    "type": 1,
+    "tsCode": "000001.SZ",
+    "price": 14.62,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 18652,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.63,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 8682,
+    "type": 1,
+    "tsCode": "000001.SZ",
+    "price": 14.63,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 12648,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.64,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 16553,
+    "type": 1,
+    "tsCode": "000001.SZ",
+    "price": 14.64,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 30555,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.65,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 29638,
+    "type": 1,
+    "tsCode": "000001.SZ",
+    "price": 14.65,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 33625,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.66,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 46521,
+    "type": 1,
+    "tsCode": "000001.SZ",
+    "price": 14.66,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 85883,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.67,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 29958,
+    "type": 1,
+    "tsCode": "000001.SZ",
+    "price": 14.67,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 44451,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.68,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 45884,
+    "type": 1,
+    "tsCode": "000001.SZ",
+    "price": 14.68,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 61210,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.69,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 32176,
+    "type": 1,
+    "tsCode": "000001.SZ",
+    "price": 14.69,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 35537,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.7,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 33396,
+    "type": 1,
+    "tsCode": "000001.SZ",
+    "price": 14.7,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 24126,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.71,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 17774,
+    "type": 1,
+    "tsCode": "000001.SZ",
+    "price": 14.71,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 24393,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.72,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 17866,
+    "type": 1,
+    "tsCode": "000001.SZ",
+    "price": 14.72,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 27710,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.73,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 17448,
+    "type": 1,
+    "tsCode": "000001.SZ",
+    "price": 14.73,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 13050,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.74,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 6231,
+    "type": 1,
+    "tsCode": "000001.SZ",
+    "price": 14.74,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 5994,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.75,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 3384,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.75,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 299,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.76,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 2368,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.76,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 409,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.77,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 2082,
+    "type": 1,
+    "tsCode": "000001.SZ",
+    "price": 14.77,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 1482,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.78,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 5768,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.78,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 1713,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.79,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 9719,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.79,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 5268,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.8,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 5614,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.8,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 7901,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.81,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 21519,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.81,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 20820,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.82,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 6020,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.82,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 2316,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.83,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 12061,
+    "type": 1,
+    "tsCode": "000001.SZ",
+    "price": 14.83,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 6952,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.84,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 15141,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.84,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 10091,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.85,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 16731,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.85,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 16844,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.86,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 18195,
+    "type": 1,
+    "tsCode": "000001.SZ",
+    "price": 14.86,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 6585,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.87,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 2533,
+    "type": 1,
+    "tsCode": "000001.SZ",
+    "price": 14.87,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 5107,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.88,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 5614,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.88,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 6680,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.89,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 14442,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.89,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 12616,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.9,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 20871,
+    "type": 1,
+    "tsCode": "000001.SZ",
+    "price": 14.9,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 8203,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.91,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 20957,
+    "type": 1,
+    "tsCode": "000001.SZ",
+    "price": 14.91,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 7470,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.92,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 8663,
+    "type": 1,
+    "tsCode": "000001.SZ",
+    "price": 14.92,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 3243,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.93,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 15005,
+    "type": 1,
+    "tsCode": "000001.SZ",
+    "price": 14.93,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 23331,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.94,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 1702,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.94,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 17685,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.95,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 3866,
+    "type": 1,
+    "tsCode": "000001.SZ",
+    "price": 14.95,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 1477,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.96,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 2018,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.96,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 4886,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.98,
+    "dateStamp": 1567958400
+  },
+  {
+    "symbol": "000001",
+    "volume": 100681,
+    "type": 0,
+    "tsCode": "000001.SZ",
+    "price": 14.98,
+    "dateStamp": 1567958400
+  }]
+  window.onload = function () {
+    goBarChart(data)
+  }
+  function goBarChart(dataArr) {
+    var canvas, ctx
+    var cWidth, cHeight, originX, originY, cMargin, originMidY
+    var XmaxValue, YmaxValue, YminValue, Ynumber, Ytotal
+    var bMargin, tobalBars, bWidth
+    var XdataList
+
+    canvas = document.getElementById('demo')
+    if (canvas && canvas.getContext) {
+      ctx = canvas.getContext('2d')
+    }
+    initChart()
+    drawLineLabelMarkers()
+    drawLineAnimate()
+
+    function drawLineLabelMarkers() {
+      ctx.translate(.5, .5)
+      ctx.lineWidth = .5
+      ctx.lineWidth = 1
+      drawLine(cMargin, originMidY, originX, originMidY) // X
+      drawLine(cMargin, cMargin, cMargin, originY) // Y
+      ctx.translate(-0.5, -0.5)
+      drawMarkers()
+    }
+
+    function drawLineAnimate() {
+      var oneDiff = Ytotal / Ynumber
+      // rect
+      for (var i = 0; i < tobalBars; i++) {
+        // var xMarker = 
+      }
+    }
+
+    function drawMarkers() {
+      var oneDiff = Ytotal / Ynumber
+      var textMargin = 10
+      ctx.textBaseline = 'middle'
+      ctx.textAlign = 'right'
+      // Y
+      for (var i = 0; i < Ynumber + 1; i++) {
+        var xMarker = cMargin
+        var yMarkerPlus = originMidY - (originMidY - cMargin) * (i / Ynumber)
+        var yMarkerMinus = originMidY + (originMidY - cMargin) * (i / Ynumber)
+        if (i !== 0) ctx.fillText((oneDiff * i).toFixed(2), xMarker - textMargin, yMarkerPlus) // +
+        if (i !== 0) ctx.fillText((oneDiff * i).toFixed(2), xMarker - textMargin, yMarkerMinus) // -
+        if (i === 0) ctx.fillText(0, xMarker - textMargin, originMidY)
+      }
+    }
+
+    function drawRect(x, y, W, H) {
+      ctx.beginPath()
+      ctx.fillRect(x, y, W, H)
+      ctx.stroke()
+      ctx.closePath()
+    }
+
+    function drawLine(x, y, X, Y) {
+      ctx.beginPath()
+      ctx.moveTo(x, y)
+      ctx.lineTo(X, Y)
+      ctx.stroke()
+      ctx.closePath()
+    }
+    function initChart() {
+      cMargin = 50
+      cWidth = canvas.width
+      cHeight = canvas.height
+      originX = cWidth - cMargin
+      originY = cHeight - cMargin
+      originMidY = (originY + cMargin) / 2
+
+      Ynumber = 5
+
+      XdataList = ['2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019']
+
+      tobalBars = dataArr.length
+      bWidth = (originX - cMargin) / tobalBars
+
+      XmaxValue = 0
+      YminValue = 0
+      YmaxValue = 0
+      for (var i = 0; i < tobalBars; i++) {
+        var barVal = parseInt(dataArr[i].volume)
+        if (barVal > XmaxValue) {
+          XmaxValue = barVal
+        }
+      }
+      for (var i = 0; i < tobalBars; i++) {
+        var barVal = dataArr[i].price
+        if (barVal > YmaxValue) {
+          YmaxValue = barVal
+        }
+      }
+      YminValue = YmaxValue
+      for (var i = 0; i < tobalBars; i++) {
+        var barVal = dataArr[i].price
+        if (barVal < YminValue) {
+          YminValue = barVal
+        }
+      }
+
+      Ytotal = (YmaxValue * 100 - YminValue * 100) / 100
+    }
+  }
+
+
+</script>
+
+</html>

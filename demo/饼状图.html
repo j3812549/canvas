@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>饼状图</title>
+  <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+</head>
+
+<body>
+  <h1>饼状图</h1>
+  <canvas id="demo" width="400px" height="400px">
+    对不起，您的浏览器暂不支持canvas
+  </canvas>
+</body>
+<script>
+  var data = [
+    {
+      name: '主力流入',
+      value: 43624.1,
+      color: 'rgba(216,37,40)'
+    },
+    {
+      name: '散户流入',
+      value: 45484.1,
+      color: 'rgba(232,69,72)'
+    },
+    {
+      name: '主力流出',
+      value: 50070.3,
+      color: 'rgba(33,131,64)'
+    },
+    {
+      name: '散户流出',
+      value: 39037.9,
+      color: 'rgba(45,186,90)'
+    }
+  ]
+  goChart(data)
+
+  function goChart(data) {
+    var dataList = data
+    var canvas, ctx
+    var cWidth, cHeight, originX, originY, cMarginX, cMarginY
+    var maxRoundD, minRoundD, midARC
+
+    var totalNumber
+
+    canvas = document.getElementById('demo')
+    if (canvas && canvas.getContext) {
+      ctx = canvas.getContext('2d')
+    }
+
+    initChart()
+    drawRound()
+
+    function drawRound() {
+      var nowPI = -Math.PI / 2
+      var oldPI = 0
+      for (var i = 0; i < dataList.length; i++) {
+        oldPI += nowPI
+        var percent = dataList[i].value / totalNumber
+        nowPI = 2 * Math.PI * percent
+        var xMarker = Math.cos(nowPI) * maxRoundD
+        var yMarker = Math.sin(nowPI) * maxRoundD
+        ctx.strokeStyle = dataList[i].color
+        ctx.fillStyle = dataList[i].color
+        drawArc(midARC.x, midARC.y, maxRoundD, oldPI, nowPI + oldPI)
+      }
+      ctx.strokeStyle = '#fff'
+      ctx.fillStyle = '#fff'
+      drawArc(midARC.x, midARC.y, minRoundD, 0, Math.PI * 2)
+    }
+
+    function clearRect(ox, oy, nx, ny, oX, oY, nX, nY) {
+      ctx.beginPath()
+      ctx.moveTo(ox, oy)
+      ctx.lineTo(nx, ny)
+      ctx.lineTo(oX, oY)
+      ctx.lineTo(nX, nY)
+      ctx.fill()
+      ctx.stroke()
+      ctx.closePath()
+    }
+
+    function drawArc(x, y, d, s, e) {
+      ctx.beginPath();
+      ctx.arc(x, y, d, s, e);
+      ctx.lineTo(midARC.x, midARC.y)
+      ctx.fill();
+      ctx.stroke();
+      ctx.closePath()
+    }
+
+    function drawLine(x, y, X, Y) {
+      ctx.beginPath()
+      ctx.moveTo(x, y)
+      ctx.lineTo(X, Y)
+      ctx.stroke()
+      ctx.closePath()
+    }
+
+    function initChart() {
+      cMarginX = 20, cMarginY = 20
+      cWidth = canvas.width
+      cHeight = canvas.height
+      originX = cWidth - cMarginX
+      originY = cHeight - cMarginY
+
+      maxRoundD = 80, minRoundD = 40
+      midARC = { x: originX / 2, y: originY / 2 }
+
+      totalNumber = 0
+      data.forEach(function (item) {
+        totalNumber += Number(item.value)
+      })
+
+    }
+
+  }
+</script>
+
+</html>
