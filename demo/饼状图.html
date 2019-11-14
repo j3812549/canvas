@@ -11,7 +11,7 @@
 
 <body>
   <h1>饼状图</h1>
-  <canvas id="demo" width="400px" height="400px">
+  <canvas id="demo" width="400px" height="240px">
     对不起，您的浏览器暂不支持canvas
   </canvas>
 </body>
@@ -63,24 +63,42 @@
         oldPI += nowPI
         var percent = dataList[i].value / totalNumber
         nowPI = 2 * Math.PI * percent
-        var xMarker = Math.cos(nowPI) * maxRoundD
-        var yMarker = Math.sin(nowPI) * maxRoundD
-        ctx.strokeStyle = dataList[i].color
+        var xMarker = Math.cos(nowPI + oldPI) * maxRoundD
+        var yMarker = Math.sin(nowPI + oldPI) * maxRoundD
+        ctx.strokeStyle = 'rgba(0,0,0,0)'
         ctx.fillStyle = dataList[i].color
         drawArc(midARC.x, midARC.y, maxRoundD, oldPI, nowPI + oldPI)
+
+        ctx.strokeStyle = '#fff'
+        ctx.fillStyle = '#fff'
+        ctx.lineWidth = 2
+        drawLine(midARC.x, midARC.y, xMarker + midARC.x, yMarker + midARC.y)
+
+        ctx.lineWidth = 1
+        var xMarkerTextPI = Math.cos((nowPI + oldPI) / 2)
+        var yMarkerTextPI = Math.sin((nowPI + oldPI) / 2)
+
+        // console.log(xMarkerTextPI / Math.cos(0))
+        // console.log(yMarkerTextPI / Math.sin(1))
+
+        ctx.fillStyle = dataList[i].color
+        ctx.strokeStyle = dataList[i].color
+        drawTextLine(xMarkerTextPI, yMarkerTextPI, maxRoundD, status)
+
       }
       ctx.strokeStyle = '#fff'
       ctx.fillStyle = '#fff'
       drawArc(midARC.x, midARC.y, minRoundD, 0, Math.PI * 2)
     }
 
-    function clearRect(ox, oy, nx, ny, oX, oY, nX, nY) {
+    function drawTextLine(x, y, d, status) {
+      var shortX = x * d
+      var shortY = y * d
+      var longX = x * (d * 1.2)
+      var longY = y * (d * 1.2)
       ctx.beginPath()
-      ctx.moveTo(ox, oy)
-      ctx.lineTo(nx, ny)
-      ctx.lineTo(oX, oY)
-      ctx.lineTo(nX, nY)
-      ctx.fill()
+      ctx.moveTo(shortX + midARC.x, shortY + midARC.y)
+      ctx.lineTo(longX + midARC.x, longY + midARC.y)
       ctx.stroke()
       ctx.closePath()
     }
@@ -107,7 +125,7 @@
       cWidth = canvas.width
       cHeight = canvas.height
       originX = cWidth - cMarginX
-      originY = cHeight - cMarginY
+      originY = cHeight - cMarginY + 50
 
       maxRoundD = 80, minRoundD = 40
       midARC = { x: originX / 2, y: originY / 2 }
