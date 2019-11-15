@@ -75,15 +75,12 @@
         drawLine(midARC.x, midARC.y, xMarker + midARC.x, yMarker + midARC.y)
 
         ctx.lineWidth = 1
-        var xMarkerTextPI = Math.cos((nowPI + oldPI) / 2)
-        var yMarkerTextPI = Math.sin((nowPI + oldPI) / 2)
-
-        // console.log(xMarkerTextPI / Math.cos(0))
-        // console.log(yMarkerTextPI / Math.sin(1))
-
+        var xMarkerTextPI, yMarkerTextPI
+        xMarkerTextPI = Math.cos(nowPI / 2 + oldPI)
+        yMarkerTextPI = Math.sin(nowPI / 2 + oldPI)
         ctx.fillStyle = dataList[i].color
         ctx.strokeStyle = dataList[i].color
-        drawTextLine(xMarkerTextPI, yMarkerTextPI, maxRoundD, status)
+        drawTextLine(xMarkerTextPI, yMarkerTextPI, maxRoundD, dataList[i])
 
       }
       ctx.strokeStyle = '#fff'
@@ -91,14 +88,36 @@
       drawArc(midARC.x, midARC.y, minRoundD, 0, Math.PI * 2)
     }
 
-    function drawTextLine(x, y, d, status) {
+    function drawTextLine(x, y, d, item) {
+      var value = item.value
+      var percent = (value / totalNumber).toFixed(4) * 100 + '%'
+      var name = item.name
+
+      var shortLine = 40
+      var textMargin = 15
+      var textMiddle = 15
       var shortX = x * d
       var shortY = y * d
       var longX = x * (d * 1.2)
       var longY = y * (d * 1.2)
+
+      ctx.textBaseline = 'middle'
       ctx.beginPath()
       ctx.moveTo(shortX + midARC.x, shortY + midARC.y)
       ctx.lineTo(longX + midARC.x, longY + midARC.y)
+      if (x > 0) {
+        ctx.textAlign = 'left'
+        ctx.lineTo(longX + midARC.x + shortLine, longY + midARC.y)
+        ctx.fillText(name, longX + midARC.x + shortLine + textMargin, longY + midARC.y)
+        ctx.fillText(percent, longX + midARC.x + shortLine + textMargin, longY + midARC.y - textMiddle)
+        ctx.fillText(value, longX + midARC.x + shortLine + textMargin, longY + midARC.y + textMiddle)
+      } else {
+        ctx.textAlign = 'right'
+        ctx.lineTo(longX + midARC.x - shortLine, longY + midARC.y)
+        ctx.fillText(name, longX + midARC.x - shortLine - textMargin, longY + midARC.y)
+        ctx.fillText(percent, longX + midARC.x - shortLine - textMargin, longY + midARC.y - textMiddle)
+        ctx.fillText(value, longX + midARC.x - shortLine - textMargin, longY + midARC.y + textMiddle)
+      }
       ctx.stroke()
       ctx.closePath()
     }
