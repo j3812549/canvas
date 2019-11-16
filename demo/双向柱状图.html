@@ -41,11 +41,6 @@
       zhuliNetMfAmount: "-1126780160",
       tradeDate: "20191031",
       dateStamp: 1572451200
-    },
-    {
-      zhuliNetMfAmount: "-13739826432",
-      tradeDate: "20191113",
-      dateStamp: 1573574400
     }
   ]
   window.onload = function () {
@@ -69,31 +64,61 @@
       ctx.translate(.5, .5)
       ctx.lineWidth = .5
       ctx.lineWidth = 1
+      ctx.strokeStyle = '#ddd'
       drawLine(cMarginX, originMidY, originX, originMidY) // X
-      drawLine(cMarginX, cMarginY, cMarginX, originY) // Y
+      // drawLine(cMarginX, cMarginY, cMarginX, originY) // Y
       ctx.translate(-0.5, -0.5)
       drawMarkers()
+      drawTabMarkers()
+    }
+
+    function drawTabMarkers() {
+      var xMarker = cMarginX
+      var yMarker = cMarginY / 2
+      var text = '5日主力净流入:'
+      var value = 0
+      for (var i = 0; i < data.length; i++) {
+        value += Number(data[i].zhuliNetMfAmount)
+      }
+      ctx.textAlign = 'left'
+      ctx.font = "14px bold 黑体";
+      ctx.fillText(text, xMarker, yMarker)
+
+      if (value > 0) {
+        value = value > 10000 ? value > 100000000 ? Math.ceil(value / 1000000) / 100 + 'e' : Math.ceil(value / 100) / 100 + 'w' : value
+        ctx.fillStyle = 'rgba(255,65,5)'
+        ctx.fillText('+ ' + value, xMarker + text.length * 14, yMarker)
+      } else {
+        value = value > 10000 ? value > 100000000 ? Math.ceil(value / 1000000) / 100 + 'e' : Math.ceil(value / 100) / 100 + 'w' : value
+        ctx.fillStyle = 'rgba(29,186,78)'
+        ctx.fillText('- ' + value, xMarker + text.length * 14, yMarker)
+      }
     }
 
     function drawLineAnimate() {
       var oneDiff = Ytotal / Ynumber
       // rect
       for (var i = 0; i < tobalBars; i++) {
-        var percent = data[i].zhuliNetMfAmount / Ytotal
-        var Xmarker = ((originX - cMarginX) / tobalBars) * i + cMarginX
+        var textMargin = 20
+        var value = data[i].zhuliNetMfAmount
+        var percent = value / Ytotal
+        var xMarker = ((originX - cMarginX) / tobalBars) * i + cMarginX + bWidth / 2
         var yMarkerPlus = originMidY - percent * (originMidY - cMarginY)
         var yMarkerMinus = originMidY + Math.abs(percent * (originMidY - cMarginY))
         var bHeight
-        if (data[i].zhuliNetMfAmount > 0) {
+        ctx.textAlign = 'center'
+        if (value > 0) {
           bHeight = percent * (originMidY - cMarginY)
           ctx.fillStyle = 'rgba(255,65,5)'
           ctx.strokeStyle = 'rgba(255,65,5)'
-          drawRect(Xmarker, yMarkerPlus, bWidth, bHeight) // +
+          drawRect(xMarker, yMarkerPlus, bWidth, bHeight) // +
+          ctx.fillText('+ ' + (value / 100000000).toFixed(2) + 'e', xMarker + bWidth / 2, yMarkerPlus + bHeight + textMargin)
         } else {
           ctx.fillStyle = 'rgba(29,186,78)'
           ctx.strokeStyle = 'rgba(29,186,78)'
           bHeight = percent * (originMidY - cMarginY)
-          drawRect(Xmarker, yMarkerMinus, bWidth, bHeight) // -
+          drawRect(xMarker, yMarkerMinus, bWidth, bHeight) // -
+          ctx.fillText('- ' + Math.abs(Math.ceil(value / 1000000) / 100) + 'e', xMarker + bWidth / 2, yMarkerMinus + bHeight - textMargin)
         }
       }
     }
@@ -110,9 +135,19 @@
         var yMarkerMinus = originMidY + (originMidY - cMarginY) * (i / Ynumber)
         var value = Math.ceil(oneDiff * i)
 
-        if (i !== 0) ctx.fillText(value, xMarker - textMargin, yMarkerPlus) // +
-        if (i !== 0) ctx.fillText(value, xMarker - textMargin, yMarkerMinus) // -
-        if (i === 0) ctx.fillText(0, xMarker - textMargin, originMidY)
+        // if (i !== 0) ctx.fillText(value, xMarker - textMargin, yMarkerPlus) // +
+        // if (i !== 0) ctx.fillText(value, xMarker - textMargin, yMarkerMinus) // -
+        // if (i === 0) ctx.fillText(0, xMarker - textMargin, originMidY)
+      }
+
+      // X
+      for (var i = 0; i < data.length; i++) {
+        var xMarker = ((originX - cMarginX) / tobalBars) * i + cMarginX + bWidth
+        var yMarker = cHeight - cMarginY / 2
+        var value = formatDate(data[i].dateStamp * 1000)
+        ctx.textAlign = 'center'
+        ctx.fillStyle = '#666'
+        ctx.fillText(value, xMarker, yMarker)
       }
     }
 
@@ -131,7 +166,7 @@
       ctx.closePath()
     }
     function initChart() {
-      cMarginX = 100, cMarginY = 40
+      cMarginX = 20, cMarginY = 80
       cWidth = canvas.width
       cHeight = canvas.height
       originX = cWidth - cMarginX
@@ -168,6 +203,14 @@
       Ytotal = Math.abs(YmaxValue) > Math.abs(YminValue) ? YmaxValue : YminValue
       Ytotal = Ytotal + Ytotal / 10
     }
+  }
+
+  function formatDate(now) {
+    now = new Date(now)
+    var year = now.getFullYear();
+    var month = now.getMonth() + 1;
+    var date = now.getDate()
+    return month + "-" + date;
   }
 
 
