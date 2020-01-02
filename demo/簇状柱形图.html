@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+  <meta charset="UTF-8">
+  <title>簇状柱形图</title>
+  <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+</head>
+
+<body>
+  <canvas id="barChart" height="400" width="600" style="margin:50px"> 你的浏览器不支持HTML5 canvas </canvas>
+
+  <script type="text/javascript">
+
+    function goBarChart(dataArr) {
+      // 声明所需变量
+      var canvas, ctx;
+      // 图表属性
+      var originX, originY, cMarginX, cMarginY;
+      var cSpaceX, cSpaceY
+      // 柱状图属性
+      var bMargin, tobalBars, bWidth
+      var Yratio, Ygrowth
+      var color
+      var translate = true
+
+
+      // 获得canvas上下文
+      canvas = document.getElementById("barChart");
+      if (canvas && canvas.getContext) {
+        ctx = canvas.getContext("2d");
+      }
+
+      initChart()
+      drawLineLabelMarkers()
+
+      // 图表初始化
+      function initChart() {
+        // 图表信息
+        cMarginX = 30; cMarginY = 30;
+        cSpaceX = 10; cSpaceY = 10;
+
+        originX = canvas.width - cMarginX * 2;
+        originY = canvas.height - cMarginY * 2;
+
+        // 柱状图信息
+        bMargin = 15;
+        tobalBars = dataArr.length;
+        bWidth = originX / tobalBars - bMargin;
+
+        Yratio = 1;
+        Ygrowth = 0
+
+        for (var i = 0; i < dataArr.length; i++) {
+          dataArr[i][2] = i
+        }
+
+        //柱状图颜色
+        color = 'red'
+      }
+
+      // 绘制图表轴、标签和标记
+      function drawLineLabelMarkers() {
+        setTranslate()
+        setFontSize(12)
+        setLineWidth(1)
+        setFillStyle('#000')
+        setStrokeStyle('#000')
+        // x轴
+        drawLine(cMarginX - 20, originY, originX + 10, originY);
+        // y轴
+        drawLine(cMarginX - 20, cMarginY, cMarginX - 20, originY);
+
+        // 绘制标记
+        drawMarkers();
+        drawBarAnimate(originY, dataArr)
+        setTranslate()
+      }
+
+      // 画线的方法
+      function drawLine(x, y, X, Y) {
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(X, Y);
+        ctx.stroke();
+        ctx.closePath();
+      }
+
+      // 绘制标记
+      function drawMarkers() {
+        setStrokeStyle('#E0E0E0')
+
+        // 绘制 x
+        setTextAlign('center')
+        for (var i = 0; i < tobalBars; i++) {
+          var markerVal = dataArr[i][0];
+          var xMarker = originX * (i / tobalBars) + cMarginX;
+          var yMarker = originY + 15;
+          if (i === 0 || i === tobalBars - 1) {
+          }
+          ctx.fillText(markerVal, xMarker, yMarker); // 文字
+        }
+      };
+
+      //绘制柱形图
+      function drawBarAnimate(yMarker, data) {
+        var yMidMarker = yMarker / 2
+        var dataLeft = []
+        var dataRight = []
+        var midIndex = data.length / 2 - 1
+        var maxValue = 0
+
+
+        for (var i = 0; i < data.length; i++) i <= midIndex ? dataLeft.push(data[i]) : dataRight.push(data[i])
+        for (var i = 0; i < dataRight.length; i++) {
+          if (maxValue < dataRight[i][1]) maxValue = dataRight[i][1]
+        }
+
+        setFillStyle('red')
+        setTextAlign('center')
+        for (var i = 0; i < dataRight.length; i++) {
+          var barVal = dataRight[i][1]
+          var barValText = Math.round(barVal * 100) / 100
+          var x = originX * dataRight[i][2] / tobalBars + cMarginX - bWidth / 2
+          var y = originY - yMidMarker * barVal / maxValue + cMarginY - Ygrowth
+          var braH = originY - y
+          drawRect(x, y, bWidth - 1, braH)
+          ctx.fillText(barValText, x + bWidth / 2, y - 5)
+        }
+
+        Ygrowth += yMidMarker
+        Yratio = Yratio * 10
+        if (midIndex < 0) return
+
+        drawBarAnimate(yMidMarker, dataLeft)
+
+      }
+
+      //绘制方块
+      function drawRect(x, y, X, Y) {
+
+        ctx.beginPath();
+        ctx.rect(x, y, X, Y);
+        ctx.fill();
+        ctx.closePath();
+
+      }
+
+      function setFontSize(size) {
+        ctx.font = " " + size + " px";
+      }
+
+      function setFillStyle(color) {
+        ctx.fillStyle = color;
+      }
+
+      function setStrokeStyle(color) {
+        ctx.strokeStyle = color;
+      }
+
+      function setTextAlign(position) {
+        ctx.textAlign = position;
+      }
+
+      function setLineWidth(size) {
+        ctx.lineWidth = size;
+      }
+
+      function setTranslate() {
+        translate ? ctx.translate(0.5, 0.5) : ctx.translate(-0.5, -0.5)
+        translate != translate
+      }
+
+    }
+
+    window.onload = function () {
+
+      var data = {
+        "code": 200,
+        "msg": "",
+        "tradeDate": null,
+        "data": [
+          {
+            "tsCode": "000001.SZ",
+            "symbol": "000001",
+            "peTTM": 10.631195,
+            "pbMRQ": 1.109551,
+            "peTTMMedian": 8.114147,
+            "peTTMMean": 8.293546415868674,
+            "peTTMHistoryPercent": 91.65526675786595,
+            "peTTMUpSpace": -21.988577804577247,
+            "pbMedian": 0.93687,
+            "pbMean": 0.9640318905608756,
+            "pbUpSpace": -13.115134810308348,
+            "pbHistoryPercent": 83.72093023255815,
+            "tradeDate": "20191210",
+            "dateStamp": 1575907200,
+            "peTTMHy": null,
+            "peTTMHyRank": null,
+            "pbHy": null,
+            "pbHyRank": null,
+            "hyNum": null,
+            "peTTMNum": null,
+            "pbNum": null,
+            "close": 15.33,
+            "name": null,
+            "peTTMMax": null,
+            "peTTMMin": null,
+            "pbMax": null,
+            "pbMin": null
+          },
+          {
+            "tsCode": "000001.SZ",
+            "symbol": "000001",
+            "peTTM": 10.818437,
+            "pbMRQ": 1.129093,
+            "peTTMMedian": 8.134022,
+            "peTTMMean": 8.300492377899046,
+            "peTTMHistoryPercent": 93.1787175989086,
+            "peTTMUpSpace": -23.27456934953685,
+            "pbMedian": 0.93687,
+            "pbMean": 0.9644881855388813,
+            "pbUpSpace": -14.578499243296934,
+            "pbHistoryPercent": 86.22100954979535,
+            "tradeDate": "20191212",
+            "dateStamp": 1576080000,
+            "peTTMHy": 7.37,
+            "peTTMHyRank": 27,
+            "pbHy": 0.96,
+            "pbHyRank": 8,
+            "hyNum": 36,
+            "peTTMNum": 683,
+            "pbNum": 632,
+            "close": 15.6,
+            "name": "平安银行",
+            "peTTMMax": 12.44627,
+            "peTTMMin": 6.264978,
+            "pbMax": 1.434667,
+            "pbMin": "0.724135"
+          },
+          {
+            "tsCode": "000001.SZ",
+            "symbol": "000001",
+            "peTTM": 10.818437,
+            "pbMRQ": 1.129093,
+            "peTTMMedian": 8.134022,
+            "peTTMMean": 8.300492377899046,
+            "peTTMHistoryPercent": 93.1787175989086,
+            "peTTMUpSpace": -23.27456934953685,
+            "pbMedian": 0.93687,
+            "pbMean": 0.9644881855388813,
+            "pbUpSpace": -14.578499243296934,
+            "pbHistoryPercent": 86.22100954979535,
+            "tradeDate": "20191212",
+            "dateStamp": 1576080000,
+            "peTTMHy": 7.43,
+            "peTTMHyRank": 27,
+            "pbHy": 0.97,
+            "pbHyRank": 8,
+            "hyNum": 36,
+            "peTTMNum": 683,
+            "pbNum": 632,
+            "close": 15.6,
+            "name": "平安银行",
+            "peTTMMax": 12.44627,
+            "peTTMMin": 6.264978,
+            "pbMax": 1.434667,
+            "pbMin": "0.724135"
+          },
+          {
+            "tsCode": "000001.SZ",
+            "symbol": "000001",
+            "peTTM": 11.179052,
+            "pbMRQ": 1.166729,
+            "peTTMMedian": 8.144472,
+            "peTTMMean": 8.306001919508867,
+            "peTTMHistoryPercent": 95.22510231923602,
+            "peTTMUpSpace": -25.70030160420698,
+            "pbMedian": 0.93722,
+            "pbMean": 0.9648316289222374,
+            "pbUpSpace": -17.304564391367876,
+            "pbHistoryPercent": 90.04092769440655,
+            "tradeDate": "20191213",
+            "dateStamp": 1576166400,
+            "peTTMHy": 7.43,
+            "peTTMHyRank": 27,
+            "pbHy": 0.97,
+            "pbHyRank": 8,
+            "hyNum": 36,
+            "peTTMNum": 698,
+            "pbNum": 660,
+            "close": 16.12,
+            "name": "平安银行",
+            "peTTMMax": 12.44627,
+            "peTTMMin": 6.264978,
+            "pbMax": 1.434667,
+            "pbMin": "0.724135"
+          },
+          {
+            "tsCode": "000001.SZ",
+            "symbol": "000001",
+            "peTTM": 11.185987,
+            "pbMRQ": 1.167453,
+            "peTTMMedian": 8.159814,
+            "peTTMMean": 8.315166790697674,
+            "peTTMHistoryPercent": 95.21203830369357,
+            "peTTMUpSpace": -25.664433628452514,
+            "pbMedian": 0.938541,
+            "pbMean": 0.9653700383036936,
+            "pbUpSpace": -17.309729958834012,
+            "pbHistoryPercent": 90.15047879616964,
+            "tradeDate": "20191216",
+            "dateStamp": 1576425600,
+            "peTTMHy": 7.44,
+            "peTTMHyRank": 27,
+            "pbHy": 0.97,
+            "pbHyRank": 8,
+            "hyNum": 36,
+            "peTTMNum": 696,
+            "pbNum": 659,
+            "close": 16.13,
+            "name": "平安银行",
+            "peTTMMax": 12.44627,
+            "peTTMMin": 6.264978,
+            "pbMax": 1.434667,
+            "pbMin": "0.724135"
+          },
+          {
+            "tsCode": "000001.SZ",
+            "symbol": "000001",
+            "peTTM": 11.442578,
+            "pbMRQ": 1.194233,
+            "peTTMMedian": 8.167032,
+            "peTTMMean": 8.321308964432284,
+            "peTTMHistoryPercent": 96.99042407660738,
+            "peTTMUpSpace": -27.277673226852517,
+            "pbMedian": 0.938803,
+            "pbMean": 0.9657849863201093,
+            "pbUpSpace": -19.129266540104883,
+            "pbHistoryPercent": 93.02325581395348,
+            "tradeDate": "20191217",
+            "dateStamp": 1576512000,
+            "peTTMHy": 7.67,
+            "peTTMHyRank": 27,
+            "pbHy": 1,
+            "pbHyRank": 9,
+            "hyNum": 36,
+            "peTTMNum": 709,
+            "pbNum": 680,
+            "close": 16.5,
+            "name": "平安银行",
+            "peTTMMax": 12.44627,
+            "peTTMMin": 6.264978,
+            "pbMax": 1.434667,
+            "pbMin": "0.724135"
+          },
+          {
+            "tsCode": "000001.SZ",
+            "symbol": "000001",
+            "peTTM": 11.414838,
+            "pbMRQ": 1.191338,
+            "peTTMMedian": 8.1693845,
+            "peTTMMean": 8.325535096994535,
+            "peTTMHistoryPercent": 96.85792349726776,
+            "peTTMUpSpace": -27.063922440296256,
+            "pbMedian": 0.9393475,
+            "pbMean": 0.966093118852459,
+            "pbUpSpace": -18.906882945691404,
+            "pbHistoryPercent": 92.89617486338798,
+            "tradeDate": "20191218",
+            "dateStamp": 1576598400,
+            "peTTMHy": 7.67,
+            "peTTMHyRank": 27,
+            "pbHy": 1,
+            "pbHyRank": 9,
+            "hyNum": 36,
+            "peTTMNum": 709,
+            "pbNum": 680,
+            "close": 16.46,
+            "name": "平安银行",
+            "peTTMMax": 12.44627,
+            "peTTMMin": 6.264978,
+            "pbMax": 1.434667,
+            "pbMin": "0.724135"
+          },
+          {
+            "tsCode": "000001.SZ",
+            "symbol": "000001",
+            "peTTM": 11.477252,
+            "pbMRQ": 1.197852,
+            "peTTMMedian": 8.171737,
+            "peTTMMean": 8.329834847203273,
+            "peTTMHistoryPercent": 96.99863574351978,
+            "peTTMUpSpace": -27.42309006369057,
+            "pbMedian": 0.939892,
+            "pbMean": 0.9664092974079127,
+            "pbUpSpace": -19.321477327089426,
+            "pbHistoryPercent": 93.1787175989086,
+            "tradeDate": "20191219",
+            "dateStamp": 1576684800,
+            "peTTMHy": 7.71,
+            "peTTMHyRank": 27,
+            "pbHy": 1,
+            "pbHyRank": 9,
+            "hyNum": 36,
+            "peTTMNum": 711,
+            "pbNum": 683,
+            "close": 16.55,
+            "name": "平安银行",
+            "peTTMMax": 12.44627,
+            "peTTMMin": 6.264978,
+            "pbMax": 1.434667,
+            "pbMin": "0.724135"
+          },
+          {
+            "tsCode": "000001.SZ",
+            "symbol": "000001",
+            "peTTM": 11.504992,
+            "pbMRQ": 1.200747,
+            "peTTMMedian": 8.174157,
+            "peTTMMean": 8.33609668212824,
+            "peTTMHistoryPercent": 97.13506139154161,
+            "peTTMUpSpace": -27.543655118332634,
+            "pbMedian": 0.943051,
+            "pbMean": 0.9668385688949522,
+            "pbUpSpace": -19.480242807606245,
+            "pbHistoryPercent": 93.1787175989086,
+            "tradeDate": "20191220",
+            "dateStamp": 1576771200,
+            "peTTMHy": 7.73,
+            "peTTMHyRank": 27,
+            "pbHy": 1.01,
+            "pbHyRank": 9,
+            "hyNum": 36,
+            "peTTMNum": 712,
+            "pbNum": 683,
+            "close": 16.59,
+            "name": "平安银行",
+            "peTTMMax": 12.44627,
+            "peTTMMin": 6.264978,
+            "pbMax": 1.434667,
+            "pbMin": "0.724135"
+          },
+          {
+            "tsCode": "000001.SZ",
+            "symbol": "000001",
+            "peTTM": 11.26227,
+            "pbMRQ": 1.175414,
+            "peTTMMedian": 8.186758,
+            "peTTMMean": 8.34612688098495,
+            "peTTMHistoryPercent": 94.8016415868673,
+            "peTTMUpSpace": -25.89303150266375,
+            "pbMedian": 0.94367,
+            "pbMean": 0.9674803187414501,
+            "pbUpSpace": -17.69025052096962,
+            "pbHistoryPercent": 90.2872777017784,
+            "tradeDate": "20191223",
+            "dateStamp": 1577030400,
+            "peTTMHy": 7.55,
+            "peTTMHyRank": 27,
+            "pbHy": 0.98,
+            "pbHyRank": 9,
+            "hyNum": 36,
+            "peTTMNum": 693,
+            "pbNum": 660,
+            "close": 16.24,
+            "name": "平安银行",
+            "peTTMMax": 12.44627,
+            "peTTMMin": 6.264978,
+            "pbMax": 1.434667,
+            "pbMin": "0.724135"
+          },
+          {
+            "tsCode": "000001.SZ",
+            "symbol": "000001",
+            "peTTM": 11.373229,
+            "pbMRQ": 1.186995,
+            "peTTMMedian": 8.209291,
+            "peTTMMean": 8.35234898632011,
+            "peTTMHistoryPercent": 95.7592339261286,
+            "peTTMUpSpace": -26.561322327018043,
+            "pbMedian": 0.94367,
+            "pbMean": 0.9679077633378933,
+            "pbUpSpace": -18.457300718377645,
+            "pbHistoryPercent": 91.38166894664843,
+            "tradeDate": "20191224",
+            "dateStamp": 1577116800,
+            "peTTMHy": 7.59,
+            "peTTMHyRank": 27,
+            "pbHy": 0.99,
+            "pbHyRank": 9,
+            "hyNum": 36,
+            "peTTMNum": 700,
+            "pbNum": 668,
+            "close": 16.4,
+            "name": "平安银行",
+            "peTTMMax": 12.44627,
+            "peTTMMin": 6.264978,
+            "pbMax": 1.434667,
+            "pbMin": "0.724135"
+          },
+          {
+            "tsCode": "000001.SZ",
+            "symbol": "000001",
+            "peTTM": 11.30388,
+            "pbMRQ": 1.179757,
+            "peTTMMedian": 8.209291,
+            "peTTMMean": 8.35638113251366,
+            "peTTMHistoryPercent": 95.08196721311475,
+            "peTTMUpSpace": -26.075107551445527,
+            "pbMedian": 0.94367,
+            "pbMean": 0.968197174863388,
+            "pbUpSpace": -17.93249161790199,
+            "pbHistoryPercent": 90.43715846994536,
+            "tradeDate": "20191225",
+            "dateStamp": 1577203200,
+            "peTTMHy": 7.57,
+            "peTTMHyRank": 27,
+            "pbHy": 0.98,
+            "pbHyRank": 9,
+            "hyNum": 36,
+            "peTTMNum": 696,
+            "pbNum": 662,
+            "close": 16.3,
+            "name": "平安银行",
+            "peTTMMax": 12.44627,
+            "peTTMMin": 6.264978,
+            "pbMax": 1.434667,
+            "pbMin": "0.724135"
+          },
+          {
+            "tsCode": "000001.SZ",
+            "symbol": "000001",
+            "peTTM": 11.421773,
+            "pbMRQ": 1.192061,
+            "peTTMMedian": 8.209291,
+            "peTTMMean": 8.360563113233287,
+            "peTTMHistoryPercent": 96.58935879945429,
+            "peTTMUpSpace": -26.801529734190243,
+            "pbMedian": 0.94367,
+            "pbMean": 0.9685025825375171,
+            "pbUpSpace": -18.75394107033809,
+            "pbHistoryPercent": 92.63301500682128,
+            "tradeDate": "20191226",
+            "dateStamp": 1577289600,
+            "peTTMHy": 7.65,
+            "peTTMHyRank": 27,
+            "pbHy": 0.99,
+            "pbHyRank": 9,
+            "hyNum": 36,
+            "peTTMNum": 708,
+            "pbNum": 679,
+            "close": 16.47,
+            "name": "平安银行",
+            "peTTMMax": 12.44627,
+            "peTTMMin": 6.264978,
+            "pbMax": 1.434667,
+            "pbMin": "0.724135"
+          },
+          {
+            "tsCode": "000001.SZ",
+            "symbol": "000001",
+            "peTTM": 11.532731,
+            "pbMRQ": 1.203642,
+            "peTTMMedian": 8.219051,
+            "peTTMMean": 8.36694482537517,
+            "peTTMHistoryPercent": 97.13506139154161,
+            "peTTMUpSpace": -27.45044668626044,
+            "pbMedian": 0.943991,
+            "pbMean": 0.9689463165075034,
+            "pbUpSpace": -19.498794782210712,
+            "pbHistoryPercent": 93.31514324693042,
+            "tradeDate": "20191227",
+            "dateStamp": 1577376000,
+            "peTTMHy": 7.64,
+            "peTTMHyRank": 27,
+            "pbHy": 0.99,
+            "pbHyRank": 9,
+            "hyNum": 36,
+            "peTTMNum": 712,
+            "pbNum": 684,
+            "close": 16.63,
+            "name": "平安银行",
+            "peTTMMax": 12.44627,
+            "peTTMMin": 6.264978,
+            "pbMax": 1.434667,
+            "pbMin": "0.724135"
+          },
+          {
+            "tsCode": "000001.SZ",
+            "symbol": "000001",
+            "peTTM": 11.491122,
+            "pbMRQ": 1.199299,
+            "peTTMMedian": 8.227473,
+            "peTTMMean": 8.37756785499316,
+            "peTTMHistoryPercent": 96.71682626538988,
+            "peTTMUpSpace": -27.095301442338187,
+            "pbMedian": 0.945449,
+            "pbMean": 0.9696515403556772,
+            "pbUpSpace": -19.148474204041083,
+            "pbHistoryPercent": 92.88645690834473,
+            "tradeDate": "20191230",
+            "dateStamp": 1577635200,
+            "peTTMHy": 7.66,
+            "peTTMHyRank": 27,
+            "pbHy": 0.99,
+            "pbHyRank": 9,
+            "hyNum": 36,
+            "peTTMNum": 707,
+            "pbNum": 679,
+            "close": 16.57,
+            "name": "平安银行",
+            "peTTMMax": 12.44627,
+            "peTTMMin": 6.264978,
+            "pbMax": 1.434667,
+            "pbMin": "0.724135"
+          }
+        ]
+      }
+      var list = []
+      data = data.data
+      data.forEach(function (item, index) {
+        if (index == 2) {
+          item.peTTM = 99999
+        }
+        if (index == 3) {
+          item.peTTM = 3333
+        }
+        if (index == 4) {
+          item.peTTM = 99
+        }
+        if (index == 5) {
+          item.peTTM = 999
+        }
+        // new Date(item.dateStamp * 1000).getFullYear() + '-' + 
+        list.push([new Date(item.dateStamp * 1000).getMonth() + '-' + new Date(item.dateStamp * 1000).getDate(), item.peTTM])
+      })
+      // 排序前
+      // console.log(list)
+
+      list = list.sort(sortMatch)
+
+      // 排序后
+      // console.log(list)
+
+      goBarChart(list)
+
+      function sortMatch(a, b) {
+        return b[1] - a[1]
+      }
+
+    }
+
+
+
+  </script>
+</body>
+
+</html>
